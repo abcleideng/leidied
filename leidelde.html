@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>数字销售管理系统</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+        body{padding:6px;font-size:13px;line-height:1.3;color:#333;background-color:#f5f5f5;}
+        h1{font-size:1.2rem;margin:4px 0;color:#2c3e50;text-align:center;}
+        textarea{width:100%;height:80px;padding:6px;border:1px solid #ddd;border-radius:3px;font-size:13px;margin-bottom:6px;resize:none;}
+        button{width:100%;padding:8px;background-color:#07c160;color:white;border:none;border-radius:4px;font-size:14px;margin-bottom:6px;}
+        .summary{background-color:#fff;padding:6px;border-radius:3px;margin-bottom:4px;font-size:12px;box-shadow:0 1px 1px rgba(0,0,0,0.1);}
+        .summary-row{display:flex;justify-content:space-between;margin-bottom:2px;}
+        .highlight{font-weight:bold;}
+        .safe{color:#07c160;}
+        .danger{color:#e74c3c;}
+        .warning{color:#ff9800;}
+        .stats-container{margin-bottom:6px;}
+        .amount-group{margin-bottom:4px;border:1px solid #eaeaea;border-radius:3px;overflow:hidden;background-color:#fff;}
+        .amount-header{padding:4px 5px;font-size:11px;display:flex;justify-content:space-between;align-items:center;}
+        .high-risk-header{background-color:#ffebee;}
+        .medium-risk-header{background-color:#fff8e1;}
+        .safe-header{background-color:#e8f5e9;}
+        .numbers-grid{display:flex;flex-wrap:wrap;gap:3px;padding:4px;}
+        .number-item{width:calc(20% - 3px);padding:2px;border-radius:2px;font-size:11px;text-align:center;display:flex;flex-direction:column;}
+        .number{font-weight:bold;font-size:12px;}
+        .amount{font-size:10px;color:#666;}
+        .high-risk-item{background-color:#ffebee;border:1px solid #ef9a9a;}
+        .medium-risk-item{background-color:#fff8e1;border:1px solid #ffe082;}
+        .safe-item{background-color:#e8f5e9;border:1px solid #a5d6a7;}
+        .section-title{font-size:12px;font-weight:bold;margin:6px 0 3px;color:#555;}
+        .no-data{text-align:center;padding:6px;color:#999;font-size:11px;}
+        .group-total{font-weight:bold;margin-top:2px;text-align:right;padding-right:4px;font-size:11px;}
+        .high-risk-total{color:#e74c3c;}
+        .medium-risk-total{color:#ff9800;}
+        .safe-total{color:#07c160;}
+        .copy-btn{background-color:#4285f4;color:white;border:none;border-radius:2px;padding:2px 5px;font-size:10px;cursor:pointer;margin-left:4px;}
+        .optimized-solution{margin-top:8px;border:1px solid #eaeaea;border-radius:3px;padding:6px;background-color:#fff;box-shadow:0 1px 1px rgba(0,0,0,0.1);}
+        .optimized-header{font-weight:bold;margin-bottom:4px;color:#1a73e8;font-size:12px;}
+        .strategy-item{margin-bottom:4px;font-size:11px;padding:3px;background-color:#f8f9fa;border-radius:2px;}
+        .strategy-highlight{font-weight:bold;color:#d32f2f;}
+        .strategy-profit{color:#388e3c;font-weight:bold;}
+        .strategy-loss{color:#e64a19;font-weight:bold;}
+        .strategy-detail{margin-left:6px;color:#555;font-size:11px;margin-bottom:2px;}
+        .number-list{display:flex;flex-wrap:wrap;gap:3px;margin:4px 0;}
+        .number-tag{padding:1px 4px;background-color:#e1f5fe;border-radius:2px;font-size:10px;}
+        .financial-summary{margin-top:6px;padding:6px;background-color:#f9f9f9;border-radius:3px;border:1px solid #eee;}
+        .financial-row{display:flex;justify-content:space-between;margin-bottom:3px;font-size:11px;}
+        .copy-success{position:fixed;top:10px;left:50%;transform:translateX(-50%);background-color:#07c160;color:white;padding:4px 8px;border-radius:3px;z-index:1000;display:none;font-size:11px;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+        .profit-loss{font-weight:bold;margin-top:4px;padding:4px;border-radius:3px;text-align:center;font-size:11px;}
+        .net-profit{background-color:#e8f5e9;color:#388e3c;}
+        .net-loss{background-color:#ffebee;color:#e74c3c;}
+        .hidden{display:none;}
+        .copy-all-btn{background-color:#ff5722;color:white;border:none;border-radius:2px;padding:2px 5px;font-size:10px;cursor:pointer;margin-left:4px;}
+        .tab-container{display:flex;margin-bottom:6px;}
+        .tab{flex:1;text-align:center;padding:6px;background:#eee;border:1px solid #ddd;cursor:pointer;}
+        .tab.active{background:#fff;border-bottom:2px solid #07c160;font-weight:bold;}
+        .tab-content{display:none;}
+        .tab-content.active{display:block;}
+        .toggle-btn{background-color:#4285f4;color:white;border:none;border-radius:2px;padding:2px 5px;font-size:10px;cursor:pointer;margin-left:4px;}
+        .conversion-result{margin-top:8px;border:1px solid #eaeaea;border-radius:3px;padding:6px;background-color:#fff;box-shadow:0 1px 1px rgba(0,0,0,0.1);}
+        .conversion-header{font-weight:bold;margin-bottom:4px;color:#1a73e8;font-size:12px;display:flex;justify-content:space-between;align-items:center;}
+        .conversion-content{white-space:pre-wrap;font-size:11px;}
+        .error{color:red;}
+    </style>
+</head>
+<body>
+    <h1>数字销售管理系统</h1>
+    <textarea id="salesData" placeholder="输入销售数据，例如：
+04-09-12-13各200米
+22,34,46各20米"></textarea>
+    <button onclick="processSalesData()">分析销售数据</button>
+    
+    <div id="results" class="hidden">
+        <div class="tab-container">
+            <div class="tab active" onclick="switchTab('fixedTransfer')">固定转出</div>
+            <div class="tab" onclick="switchTab('fullPayout')">全额赔付</div>
+        </div>
+        
+        <div id="fixedTransfer" class="tab-content active">
+            <div id="summary" class="summary"></div>
+            
+            <div class="section-title">数字分类：</div>
+            <div id="numbersStats" class="stats-container"></div>
+            
+            <div id="conversionResultContainer" class="conversion-result hidden">
+                <div class="conversion-header">
+                    <span>转换结果</span>
+                    <button class="toggle-btn" onclick="toggleConversionResult()">隐藏</button>
+                </div>
+                <div id="conversionResult" class="conversion-content"></div>
+                <div id="totalAmount" class="summary"></div>
+            </div>
+            
+            <div class="optimized-solution">
+                <div class="optimized-header">智能转出方案</div>
+                <div id="optimizedSolution"></div>
+                
+                <div class="financial-summary">
+                    <div class="financial-row">
+                        <span>总销售额：</span>
+                        <span id="totalSales" class="highlight">0米</span>
+                    </div>
+                    <div class="financial-row">
+                        <span>转出金额：</span>
+                        <span id="totalTransferred" class="danger">0米</span>
+                    </div>
+                    <div class="financial-row">
+                        <span>保留金额：</span>
+                        <span id="totalRetained" class="safe">0米</span>
+                    </div>
+                    <div class="financial-row">
+                        <span>最高赔付：</span>
+                        <span id="maxPayout" class="danger">0米</span>
+                    </div>
+                    <div id="profitLossSummary" class="profit-loss"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="fullPayout" class="tab-content">
+            <div class="summary">
+                <div class="summary-row">
+                    <span>总销售额：</span>
+                    <span id="fullTotalSales" class="highlight">0米</span>
+                </div>
+                <div class="summary-row">
+                    <span>销售数字：</span>
+                    <span id="fullNumberCount">0个</span>
+                </div>
+            </div>
+            
+            <div class="optimized-solution">
+                <div class="optimized-header">固定转出后赔付分析</div>
+                <div class="strategy-item">
+                    <b>赔付方案</b>
+                </div>
+                <div class="strategy-detail">
+                    基于固定转出后的保留金额按1:47倍赔付
+                </div>
+                
+                <div class="financial-summary">
+                    <div class="financial-row">
+                        <span>总销售额：</span>
+                        <span id="fullPayoutTotalSales">0米</span>
+                    </div>
+                    <div class="financial-row">
+                        <span>转出金额：</span>
+                        <span id="fullPayoutTransferred">0米</span>
+                    </div>
+                    <div class="financial-row">
+                        <span>保留金额：</span>
+                        <span id="fullPayoutRetained">0米</span>
+                    </div>
+                    <div class="financial-row">
+                        <span>最高赔付金额：</span>
+                        <span id="fullPayoutMax" class="danger">0米</span>
+                    </div>
+                    <div class="financial-row">
+                        <span>最大盈利金额：</span>
+                        <span id="fullPayoutMaxProfit" class="safe">0米</span>
+                    </div>
+                    <div class="financial-row">
+                        <span>最大亏损金额：</span>
+                        <span id="fullPayoutMaxLoss" class="danger">0米</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="optimized-solution">
+                <div class="optimized-header">财务大数据统计法</div>
+                <div class="strategy-item">
+                    <b>最优赔付方案</b>
+                </div>
+                <div class="strategy-detail">
+                    根据销售总额和赔付倍数计算最优赔付金额，保证亏损最小化、盈利最大化
+                </div>
+                <div class="financial-summary">
+                    <div class="financial-row">
+                        <span>总销售额：</span>
+                        <span id="optimalTotalSales">0米</span>
+                    </div>
+                    <div class="financial-row">
+                        <span>最优赔付金额：</span>
+                        <span id="optimalPayout" class="highlight">0米</span>
+                    </div>
+                    <div class="financial-row">
+                        <span>最大可能盈利：</span>
+                        <span id="optimalMaxProfit" class="safe">0米</span>
+                    </div>
+                    <div class="financial-row">
+                        <span>最大可能亏损：</span>
+                        <span id="optimalMaxLoss" class="danger">0米</span>
+                    </div>
+                    <div class="financial-row">
+                        <span>盈利概率：</span>
+                        <span id="optimalWinRate" class="safe">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="copySuccess" class="copy-success">已复制到剪贴板</div>
+
+    <script>
+        // 系统配置
+        const PAYOUT_RATIO = 47;
+        const MIN_TRANSFER = 10;
+        
+        // 主处理函数
+        function processSalesData() {
+            try {
+                const salesData = document.getElementById('salesData').value.trim();
+                if (!salesData) {
+                    alert('请输入销售数据');
+                    return;
+                }
+                
+                const salesStats = analyzeSalesData(salesData);
+                const fixedTransferResults = analyzeAndDisplayResults(salesStats);
+                analyzeFullPayoutResults(salesStats, fixedTransferResults);
+                
+                // 显示转换结果
+                displayConversionResult(salesData);
+            } catch (error) {
+                alert('处理数据时出错: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        // 切换标签页
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // 显示/隐藏转换结果
+        function toggleConversionResult() {
+            const container = document.getElementById('conversionResultContainer');
+            const btn = document.querySelector('.conversion-header .toggle-btn');
+            
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                btn.textContent = '隐藏';
+            } else {
+                container.classList.add('hidden');
+                btn.textContent = '显示';
+            }
+        }
+
+        // 销售数据分析 - 使用新的识别逻辑
+        function analyzeSalesData(data) {
+            const salesStats = {};
+            // 初始化所有数字(01-49)的销售金额为0
+            for (let i = 1; i <= 49; i++) salesStats[i] = 0;
+
+            const chineseToNumber = {
+                '一': 1, '二': 2, '三': 3, '四': 4, '五': 5,
+                '六': 6, '七': 7, '八': 8, '九': 9, '十': 10
+            };
+            
+            // 预处理：替换中文标点，保留英文标点
+            const normalizedInput = data.replace(/[，。]/g, '').replace(/\s+/g, ' ');
+            const lines = normalizedInput.split('\n');
+            
+            // 改进的正则表达式，识别各种格式（包括".各10"）
+            const pattern = /((?:\d+[.,\-\s]*)+\d+)[\s.,]*(?:各|一个)\s*([五六七八九十\d]+)(?=\D|$)/g;
+            
+            for (let line of lines) {
+                line = line.trim();
+                if (line === '') continue;
+                
+                let lastIndex = 0;
+                let match;
+                
+                pattern.lastIndex = 0;
+                
+                while ((match = pattern.exec(line)) !== null) {
+                    const numbersStr = match[1].trim();
+                    const amountStr = match[2];
+                    
+                    try {
+                        // 处理数字部分的各种分隔符
+                        const normalizedNumbers = numbersStr.replace(/[.,\s]/g, '-').replace(/-+/g, '-');
+                        const numbers = normalizedNumbers.split('-').filter(n => {
+                            const num = n.trim();
+                            return num !== '' && !isNaN(num);
+                        });
+                        
+                        if (numbers.length === 0) continue;
+                        
+                        // 处理金额（支持中文数字）
+                        let amount = parseInt(amountStr);
+                        if (isNaN(amount)) {
+                            amount = chineseToNumber[amountStr] || 0;
+                            if (amount === 0) continue;
+                        }
+                        
+                        // 为每个数字添加金额
+                        numbers.forEach(num => {
+                            const n = parseInt(num);
+                            if (n >= 1 && n <= 49) {
+                                salesStats[n] += amount;
+                            }
+                        });
+                        
+                        lastIndex = pattern.lastIndex;
+                    } catch (e) {
+                        console.error('解析错误:', e);
+                    }
+                }
+            }
+            
+            return salesStats;
+        }
+
+        // 显示复制成功提示
+        function showCopySuccess() {
+            const copySuccess = document.getElementById('copySuccess');
+            copySuccess.style.display = 'block';
+            setTimeout(() => {
+                copySuccess.style.display = 'none';
+            }, 1500);
+        }
+
+        // 复制数字到剪贴板
+        function copyNumbers(numbers) {
+            const numbersStr = numbers.map(num => num.toString().padStart(2, '0')).join('  ');
+            navigator.clipboard.writeText(numbersStr).then(() => {
+                showCopySuccess();
+            }).catch(err => {
+                console.error('复制失败:', err);
+            });
+        }
+
+        // 十位整数舍入
+        function roundToTen(num) {
+            return Math.round(num / 10) * 10;
+        }
+
+        // 按金额分组数字并生成转出方案文本
+        function generateTransferText(numbers, transferAmounts) {
+            const groups = {};
+            
+            numbers.forEach((num, index) => {
+                const transferAmount = transferAmounts[index];
+                if (!groups[transferAmount]) {
+                    groups[transferAmount] = [];
+                }
+                groups[transferAmount].push(num.number);
+            });
+            
+            let result = '';
+            for (const [amount, nums] of Object.entries(groups)) {
+                if (nums.length > 1) {
+                    result += nums.map(n => n.toString().padStart(2, '0')).join(' ') + `各${amount}米 `;
+                } else {
+                    result += nums[0].toString().padStart(2, '0') + `各${amount}米 `;
+                }
+            }
+            
+            return result.trim();
+        }
+
+        // 复制文本到剪贴板
+        function copyTextToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showCopySuccess();
+            }).catch(err => {
+                console.error('复制失败:', err);
+            });
+        }
+
+        // 计算最优转出金额（固定比例）
+        function calculateOptimalTransfer(numbers, totalSales) {
+            let totalTransferred = 0;
+            let totalRetained = 0;
+            let maxPayout = 0;
+            const transferAmounts = [];
+            const retainedAmounts = [];
+            
+            // 判断是否为低销售额模式（低于3000）
+            const isLowSalesMode = totalSales < 3000;
+            
+            numbers.forEach(num => {
+                let transferAmount = 0;
+                let retainAmount = num.amount;
+                
+                // 高风险数字（金额≥200）转出50%
+                if (num.amount >= 200) {
+                    transferAmount = Math.max(MIN_TRANSFER, roundToTen(num.amount * 0.5));
+                } 
+                // 中风险数字（在低销售额模式下60-199为中风险，否则100-199为中风险）
+                else if ((isLowSalesMode && num.amount >= 60) || (!isLowSalesMode && num.amount >= 100)) {
+                    transferAmount = Math.max(MIN_TRANSFER, roundToTen(num.amount * 0.4));
+                }
+                
+                // 确保转出金额不超过原金额
+                transferAmount = Math.min(transferAmount, num.amount - 1);
+                retainAmount = num.amount - transferAmount;
+                
+                transferAmounts.push(transferAmount);
+                retainedAmounts.push(retainAmount);
+                totalTransferred += transferAmount;
+                totalRetained += retainAmount;
+                
+                const payout = retainAmount * PAYOUT_RATIO;
+                if (payout > maxPayout) {
+                    maxPayout = payout;
+                }
+            });
+            
+            return {
+                transferAmounts,
+                retainedAmounts,
+                totalTransferred,
+                totalRetained,
+                maxPayout
+            };
+        }
+
+        // 计算最优赔付金额（财务大数据统计法）
+        function calculateOptimalPayout(totalSales) {
+            // 计算公式: 最优赔付金额 = 总销售额 / (1 + 1/赔付倍数)
+            const optimalPayout = Math.round(totalSales / (1 + 1/PAYOUT_RATIO));
+            
+            // 计算最大盈利和最大亏损
+            const maxProfit = totalSales - optimalPayout;
+            const maxLoss = optimalPayout * PAYOUT_RATIO - totalSales;
+            
+            // 计算盈利概率 (简化计算)
+            const winRate = Math.round((1 - 1/PAYOUT_RATIO) * 100);
+            
+            return {
+                optimalPayout,
+                maxProfit,
+                maxLoss,
+                winRate
+            };
+        }
+
+        // 显示转换结果
+        function displayConversionResult(inputData) {
+            const chineseToNumber = {
+                '一': 1, '二': 2, '三': 3, '四': 4, '五': 5,
+                '六': 6, '七': 7, '八': 8, '九': 9, '十': 10
+            };
+            
+            // 预处理：替换中文标点，保留英文标点
+            const normalizedInput = inputData.replace(/[，。]/g, '').replace(/\s+/g, ' ');
+            const lines = normalizedInput.split('\n');
+            
+            let resultWithTotal = '';
+            let resultOriginal = '';
+            let totalAmount = 0;
+            
+            // 改进的正则表达式，识别各种格式（包括".各10"）
+            const pattern = /((?:\d+[.,\-\s]*)+\d+)[\s.,]*(?:各|一个)\s*([五六七八九十\d]+)(?=\D|$)/g;
+            
+            for (let line of lines) {
+                line = line.trim();
+                if (line === '') {
+                    resultWithTotal += '\n';
+                    resultOriginal += '\n';
+                    continue;
+                }
+                
+                let matchesFound = false;
+                let lastIndex = 0;
+                let match;
+                
+                pattern.lastIndex = 0;
+                
+                while ((match = pattern.exec(line)) !== null) {
+                    matchesFound = true;
+                    const numbersStr = match[1].trim();
+                    const amountStr = match[2];
+                    
+                    try {
+                        // 处理数字部分的各种分隔符
+                        const normalizedNumbers = numbersStr.replace(/[.,\s]/g, '-').replace(/-+/g, '-');
+                        const numbers = normalizedNumbers.split('-').filter(n => {
+                            const num = n.trim();
+                            return num !== '' && !isNaN(num);
+                        });
+                        
+                        if (numbers.length === 0) {
+                            throw new Error("没有有效的数字");
+                        }
+                        
+                        // 处理金额（支持中文数字）
+                        let amount = parseInt(amountStr);
+                        if (isNaN(amount)) {
+                            amount = chineseToNumber[amountStr] || 0;
+                            if (amount === 0) {
+                                throw new Error("金额不是有效数字");
+                            }
+                        }
+                        
+                        // 计算总金额
+                        const groupAmount = amount * numbers.length;
+                        totalAmount += groupAmount;
+                        
+                        // 生成带总金额的格式
+                        resultWithTotal += `${numbers.join('-')} 各 ${amount} (本组金额: ${groupAmount})\n`;
+                        // 生成原始金额格式（保留原始分隔符）
+                        const originalSeparator = numbersStr.match(/[^\d]/)?.[0] || ',';
+                        resultOriginal += `${numbers.join(originalSeparator)} 各 ${amount}\n`;
+                        
+                    } catch (e) {
+                        const errorMsg = `<span class="error">[错误] ${match[0]} (${e.message})</span>\n`;
+                        resultWithTotal += errorMsg;
+                        resultOriginal += errorMsg;
+                    }
+                    
+                    lastIndex = pattern.lastIndex;
+                }
+                
+                if (!matchesFound) {
+                    const errorMsg = `<span class="error">[未识别] ${line}</span>\n`;
+                    resultWithTotal += errorMsg;
+                    resultOriginal += errorMsg;
+                } else if (lastIndex < line.length) {
+                    // 尝试处理剩余部分
+                    const remainingText = line.substring(lastIndex).trim();
+                    if (remainingText) {
+                        const remainingMatch = remainingText.match(/^(\d+[.,\-\s]*\d+)[\s.,]*(?:各|一个)\s*([五六七八九十\d]+)/);
+                        if (remainingMatch) {
+                            // 如果是新的数字组，重新处理
+                            pattern.lastIndex = lastIndex;
+                            continue;
+                        } else {
+                            const errorMsg = `<span class="error">[部分未识别] ${remainingText}</span>\n`;
+                            resultWithTotal += errorMsg;
+                            resultOriginal += errorMsg;
+                        }
+                    }
+                }
+            }
+            
+            // 显示结果
+            document.getElementById('conversionResult').innerHTML = resultWithTotal;
+            document.getElementById('totalAmount').textContent = `总金额: ${totalAmount}`;
+            document.getElementById('conversionResultContainer').classList.remove('hidden');
+        }
+
+        // 分析并显示固定转出结果
+        function analyzeAndDisplayResults(stats) {
+            const resultsDiv = document.getElementById('results');
+            const summaryDiv = document.getElementById('summary');
+            const numbersStatsDiv = document.getElementById('numbersStats');
+            const optimizedSolution = document.getElementById('optimizedSolution');
+            
+            // 计算总销售额
+            let totalSales = 0;
+            const allNumbers = [];
+            const highRiskNumbers = [];
+            const mediumRiskNumbers = [];
+            const safeNumbers = [];
+            
+            for (let num = 1; num <= 49; num++) {
+                if (stats[num] > 0) {
+                    totalSales += stats[num];
+                    const numberObj = {
+                        number: num,
+                        amount: stats[num]
+                    };
+                    allNumbers.push(numberObj);
+                    
+                    // 分类数字
+                    if (stats[num] >= 200) {
+                        highRiskNumbers.push(numberObj);
+                    } else if ((totalSales < 3000 && stats[num] >= 60) || (totalSales >= 3000 && stats[num] >= 100)) {
+                        mediumRiskNumbers.push(numberObj);
+                    } else {
+                        safeNumbers.push(numberObj);
+                    }
+                }
+            }
+            
+            // 按金额排序
+            allNumbers.sort((a, b) => b.amount - a.amount);
+            highRiskNumbers.sort((a, b) => b.amount - a.amount);
+            mediumRiskNumbers.sort((a, b) => b.amount - a.amount);
+            safeNumbers.sort((a, b) => b.amount - a.amount);
+            
+            // 计算最优转出方案
+            const { transferAmounts, retainedAmounts, totalTransferred, totalRetained, maxPayout } = 
+                calculateOptimalTransfer(allNumbers, totalSales);
+            
+            // 计算净盈亏
+            const maxLoss = maxPayout - totalRetained;
+            const netProfit = totalTransferred - maxLoss;
+            
+            // 显示结果区域
+            resultsDiv.classList.remove('hidden');
+            
+            // 显示摘要
+            summaryDiv.innerHTML = `
+                <div class="summary-row">
+                    <span>总销售额：</span>
+                    <span class="highlight">${totalSales}米</span>
+                </div>
+                <div class="summary-row">
+                    <span>销售数字：</span>
+                    <span>${allNumbers.length}个</span>
+                </div>
+                <div class="summary-row">
+                    <span>高风险(≥200米)：</span>
+                    <span>${highRiskNumbers.length}个</span>
+                </div>
+                <div class="summary-row">
+                    <span>中风险(${totalSales < 3000 ? '60-199' : '100-199'}米)：</span>
+                    <span>${mediumRiskNumbers.length}个</span>
+                </div>
+                <div class="summary-row">
+                    <span>安全(<${totalSales < 3000 ? 60 : 100}米)：</span>
+                    <span>${safeNumbers.length}个</span>
+                </div>
+            `;
+            
+            // 显示数字统计（按风险等级分组）
+            numbersStatsDiv.innerHTML = '';
+            
+            // 高风险数字组
+            if (highRiskNumbers.length > 0) {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'amount-group';
+                
+                const header = document.createElement('div');
+                header.className = 'amount-header high-risk-header';
+                header.innerHTML = `
+                    <span>高风险(≥200米)</span>
+                    <span>
+                        ${highRiskNumbers.length}个
+                        <button class="copy-btn" onclick="copyNumbers([${highRiskNumbers.map(item => item.number).join(',')}])">复制</button>
+                        <button class="copy-all-btn" onclick="copyTransferText([${highRiskNumbers.map(item => item.number).join(',')}], [${highRiskNumbers.map(item => Math.max(MIN_TRANSFER, roundToTen(item.amount * 0.5))).join(',')}])">转出</button>
+                    </span>
+                `;
+                
+                const grid = document.createElement('div');
+                grid.className = 'numbers-grid';
+                
+                highRiskNumbers.forEach((item, index) => {
+                    const transferAmount = Math.max(MIN_TRANSFER, roundToTen(item.amount * 0.5));
+                    const retainAmount = item.amount - transferAmount;
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'number-item high-risk-item';
+                    itemDiv.innerHTML = `
+                        <span class="number">${item.number.toString().padStart(2, '0')}</span>
+                        <span class="amount">${item.amount}米 (转${transferAmount})</span>
+                    `;
+                    grid.appendChild(itemDiv);
+                });
+
+                const totalDiv = document.createElement('div');
+                totalDiv.className = 'group-total high-risk-total';
+                totalDiv.textContent = `总金额: ${highRiskNumbers.reduce((sum, item) => sum + item.amount, 0)}米`;
+                
+                groupDiv.appendChild(header);
+                groupDiv.appendChild(grid);
+                groupDiv.appendChild(totalDiv);
+                numbersStatsDiv.appendChild(groupDiv);
+            }
+            
+            // 中风险数字组
+            if (mediumRiskNumbers.length > 0) {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'amount-group';
+                
+                const header = document.createElement('div');
+                header.className = 'amount-header medium-risk-header';
+                header.innerHTML = `
+                    <span>中风险(${totalSales < 3000 ? '60-199' : '100-199'}米)</span>
+                    <span>
+                        ${mediumRiskNumbers.length}个
+                        <button class="copy-btn" onclick="copyNumbers([${mediumRiskNumbers.map(item => item.number).join(',')}])">复制</button>
+                        <button class="copy-all-btn" onclick="copyTransferText([${mediumRiskNumbers.map(item => item.number).join(',')}], [${mediumRiskNumbers.map(item => Math.max(MIN_TRANSFER, roundToTen(item.amount * 0.4))).join(',')}])">转出</button>
+                    </span>
+                `;
+                
+                const grid = document.createElement('div');
+                grid.className = 'numbers-grid';
+                
+                mediumRiskNumbers.forEach((item, index) => {
+                    const transferAmount = Math.max(MIN_TRANSFER, roundToTen(item.amount * 0.4));
+                    const retainAmount = item.amount - transferAmount;
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'number-item medium-risk-item';
+                    itemDiv.innerHTML = `
+                        <span class="number">${item.number.toString().padStart(2, '0')}</span>
+                        <span class="amount">${item.amount}米 (转${transferAmount})</span>
+                    `;
+                    grid.appendChild(itemDiv);
+                });
+
+                const totalDiv = document.createElement('div');
+                totalDiv.className = 'group-total medium-risk-total';
+                totalDiv.textContent = `总金额: ${mediumRiskNumbers.reduce((sum, item) => sum + item.amount, 0)}米`;
+                
+                groupDiv.appendChild(header);
+                groupDiv.appendChild(grid);
+                groupDiv.appendChild(totalDiv);
+                numbersStatsDiv.appendChild(groupDiv);
+            }
+            
+            // 安全数字组
+            if (safeNumbers.length > 0) {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'amount-group';
+                
+                const header = document.createElement('div');
+                header.className = 'amount-header safe-header';
+                header.innerHTML = `
+                    <span>安全(<${totalSales < 3000 ? 60 : 100}米)</span>
+                    <span>
+                        ${safeNumbers.length}个
+                        <button class="copy-btn" onclick="copyNumbers([${safeNumbers.map(item => item.number).join(',')}])">复制</button>
+                    </span>
+                `;
+                
+                const grid = document.createElement('div');
+                grid.className = 'numbers-grid';
+                
+                safeNumbers.forEach((item, index) => {
+                    const transferAmount = 0;
+                    const retainAmount = item.amount;
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'number-item safe-item';
+                    itemDiv.innerHTML = `
+                        <span class="number">${item.number.toString().padStart(2, '0')}</span>
+                        <span class="amount">${item.amount}米</span>
+                    `;
+                    grid.appendChild(itemDiv);
+                });
+
+                const totalDiv = document.createElement('div');
+                totalDiv.className = 'group-total safe-total';
+                totalDiv.textContent = `总金额: ${safeNumbers.reduce((sum, item) => sum + item.amount, 0)}米`;
+                
+                groupDiv.appendChild(header);
+                groupDiv.appendChild(grid);
+                groupDiv.appendChild(totalDiv);
+                numbersStatsDiv.appendChild(groupDiv);
+            }
+            
+            // 生成转出方案
+            const transferText = generateTransferText(allNumbers, transferAmounts);
+            let solutionHtml = `
+                <div class="strategy-item">
+                    <b>智能转出方案</b>
+                    <button class="copy-btn" onclick="copyTextToClipboard('${transferText.replace(/'/g, "\\'")}')" style="margin-left:auto;">复制全部</button>
+                </div>
+                <div class="strategy-detail">
+                    转出策略：
+                    <ul style="margin:3px 0 3px 15px;">
+                        <li>≥200米：转出50%</li>
+                        <li>${totalSales < 3000 ? '60-199' : '100-199'}米：转出40%</li>
+                        <li><${totalSales < 3000 ? 60 : 100}米：不转出</li>
+                    </ul>
+                </div>
+                <div class="strategy-detail">
+                    <div>总销售额: ${totalSales}米</div>
+                    <div>转出金额: ${totalTransferred}米</div>
+                    <div>保留金额: ${totalRetained}米</div>
+                    <div>最高赔付: ${maxPayout}米</div>
+                </div>
+            `;
+            
+            optimizedSolution.innerHTML = solutionHtml;
+            
+            // 更新财务总结
+            document.getElementById('totalSales').textContent = `${totalSales}米`;
+            document.getElementById('totalTransferred').textContent = `${totalTransferred}米`;
+            document.getElementById('totalRetained').textContent = `${totalRetained}米`;
+            document.getElementById('maxPayout').textContent = `${maxPayout}米`;
+            
+            const profitLossDiv = document.getElementById('profitLossSummary');
+            if (netProfit >= 0) {
+                profitLossDiv.className = "profit-loss net-profit";
+                profitLossDiv.innerHTML = `净盈利: ${netProfit}米`;
+            } else {
+                profitLossDiv.className = "profit-loss net-loss";
+                profitLossDiv.innerHTML = `净亏损: ${-netProfit}米`;
+            }
+            
+            // 返回固定转出结果，用于全额赔付分析
+            return {
+                totalSales,
+                allNumbers,
+                transferAmounts,
+                retainedAmounts,
+                totalTransferred,
+                totalRetained,
+                maxPayout
+            };
+        }
+        
+        // 分析并显示全额赔付结果
+        function analyzeFullPayoutResults(stats, fixedTransferResults) {
+            const totalSales = fixedTransferResults.totalSales;
+            const allNumbers = fixedTransferResults.allNumbers;
+            const retainedAmounts = fixedTransferResults.retainedAmounts;
+            const totalTransferred = fixedTransferResults.totalTransferred;
+            const totalRetained = fixedTransferResults.totalRetained;
+            
+            // 计算基于保留金额的赔付
+            let maxPayout = 0;
+            let minPayout = Infinity;
+            
+            retainedAmounts.forEach(amount => {
+                const payout = amount * PAYOUT_RATIO;
+                if (payout > maxPayout) {
+                    maxPayout = payout;
+                }
+                if (payout < minPayout) {
+                    minPayout = payout;
+                }
+            });
+            
+            // 计算最大盈利和最大亏损
+            const maxProfit = totalSales - minPayout;
+            const maxLoss = maxPayout - totalSales;
+            
+            // 更新固定转出后赔付分析
+            document.getElementById('fullTotalSales').textContent = `${totalSales}米`;
+            document.getElementById('fullNumberCount').textContent = `${allNumbers.length}个`;
+            document.getElementById('fullPayoutTotalSales').textContent = `${totalSales}米`;
+            document.getElementById('fullPayoutTransferred').textContent = `${totalTransferred}米`;
+            document.getElementById('fullPayoutRetained').textContent = `${totalRetained}米`;
+            document.getElementById('fullPayoutMax').textContent = `${maxPayout}米`;
+            document.getElementById('fullPayoutMaxProfit').textContent = `${maxProfit}米`;
+            document.getElementById('fullPayoutMaxLoss').textContent = `${maxLoss}米`;
+            
+            // 计算财务大数据统计法
+            const { optimalPayout, maxProfit: optimalMaxProfit, maxLoss: optimalMaxLoss, winRate } = calculateOptimalPayout(totalSales);
+            
+            // 更新财务大数据统计法结果
+            document.getElementById('optimalTotalSales').textContent = `${totalSales}米`;
+            document.getElementById('optimalPayout').textContent = `${optimalPayout}米`;
+            document.getElementById('optimalMaxProfit').textContent = `${optimalMaxProfit}米`;
+            document.getElementById('optimalMaxLoss').textContent = `${optimalMaxLoss}米`;
+            document.getElementById('optimalWinRate').textContent = `${winRate}%`;
+        }
+        
+        // 复制转出方案文本
+        function copyTransferText(numbers, transferAmounts) {
+            const groups = {};
+            
+            numbers.forEach((num, index) => {
+                const transferAmount = transferAmounts[index];
+                if (!groups[transferAmount]) {
+                    groups[transferAmount] = [];
+                }
+                groups[transferAmount].push(num);
+            });
+            
+            let result = '';
+            for (const [amount, nums] of Object.entries(groups)) {
+                if (nums.length > 1) {
+                    result += nums.map(n => n.toString().padStart(2, '0')).join(' ') + `各${amount}米 `;
+                } else {
+                    result += nums[0].toString().padStart(2, '0') + `各${amount}米 `;
+                }
+            }
+            
+            navigator.clipboard.writeText(result.trim()).then(() => {
+                showCopySuccess();
+            }).catch(err => {
+                console.error('复制失败:', err);
+            });
+        }
+    </script>
+</body>
+</html>
